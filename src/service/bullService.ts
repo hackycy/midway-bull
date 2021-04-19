@@ -1,17 +1,21 @@
 import { Inject, Provide } from '@midwayjs/decorator';
-import { Queue, JobOptions } from 'bull';
+import { Queue, JobOptions, Job } from 'bull';
 
 @Provide()
 export class BullService {
   @Inject('queueMap')
   queueMap;
 
-  async excute(queueName: any, data: any, options: JobOptions) {
-    const queue = this.queueMap[queueName.constructor.name] as Queue;
+  async excute<T>(
+    queueName: string,
+    data: T,
+    options: JobOptions
+  ): Promise<Job<T>> {
+    const queue = this.queueMap[queueName] as Queue;
     return await queue.add(data, options);
   }
 
-  getQueue(queueName: any): Queue {
-    return this.queueMap[queueName.constructor.name] as Queue;
+  getQueue(queueName: string): Queue {
+    return this.queueMap[queueName] as Queue;
   }
 }

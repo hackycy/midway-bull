@@ -1,5 +1,6 @@
 import {
   App,
+  Config,
   Configuration,
   getClassMetadata,
   listModule,
@@ -15,6 +16,9 @@ import { IQueue } from './type';
 export class AutoConfiguration {
   @App()
   app: IMidwayApplication;
+
+  @Config('bull')
+  bullConfig: any;
 
   queueList: any[] = [];
 
@@ -48,7 +52,10 @@ export class AutoConfiguration {
     for (const module of modules) {
       const rule = getClassMetadata(MODULE_TASK_QUEUE_OPTIONS, module);
       // new queue
-      const queue = new Bull(rule.name, rule.options);
+      const queue = new Bull(
+        rule.name,
+        rule.options ?? this.bullConfig[rule.name]
+      );
       // init
       const ctx = this.app.createAnonymousContext();
       const service: IQueue = await ctx.requestContext.getAsync(module);
