@@ -7,6 +7,7 @@ import {
 } from '@midwayjs/decorator';
 import { IMidwayApplication, IMidwayContainer } from '@midwayjs/core';
 import * as Bull from 'bull';
+import { Queue } from 'bull';
 import { MODULE_TASK_QUEUE_KEY, MODULE_TASK_QUEUE_OPTIONS } from './const';
 import { IQueue } from './type';
 
@@ -20,15 +21,15 @@ export class AutoConfiguration {
   @Config('bull')
   bullConfig: any;
 
-  queueList: any[] = [];
+  queueList: Queue[] = [];
 
   async onReady(container: IMidwayContainer): Promise<void> {
     await this.loadQueue(container);
   }
 
   async onStop(): Promise<void> {
-    this.queueList.map(q => {
-      q.stop();
+    this.queueList.forEach(q => {
+      q.close();
     });
   }
 
@@ -62,7 +63,7 @@ export class AutoConfiguration {
       queue.process(async job => {
         await service.excute.call(service, job.data);
       });
-      for (const e in event) {
+      for (const e of event) {
         queue.on(e, (...args) => {
           service.onEvent(e, ...args);
         });
