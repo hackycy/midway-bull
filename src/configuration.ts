@@ -41,7 +41,7 @@ export class AutoConfiguration {
       const queueOptions =
         typeof rule.options === 'string'
           ? this.bullConfig[rule.options]
-          : rule.opoptions;
+          : rule.options;
       // new queue
       const queue = new Bull(rule.name, queueOptions);
       // init
