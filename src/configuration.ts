@@ -65,7 +65,7 @@ export class AutoConfiguration {
       });
       for (const e of event) {
         queue.on(e, (...args) => {
-          service.onEvent(e, ...args);
+          service.onEvent.call(this, e, ...args);
         });
       }
       queueMap[rule.name] = queue;
