@@ -34,39 +34,29 @@ export class AutoConfiguration {
   }
 
   async loadQueue(container: IMidwayContainer): Promise<void> {
-    const event = [
-      'error',
-      'waiting',
-      'active',
-      'stalled',
-      'progress',
-      'completed',
-      'failed',
-      'paused',
-      'resumed',
-      'removed',
-      'cleaned',
-      'drained',
-    ];
     const modules = listModule(MODULE_TASK_QUEUE_KEY);
     const queueMap = {};
     for (const module of modules) {
       const rule = getClassMetadata(MODULE_TASK_QUEUE_OPTIONS, module);
+      const queueOptions =
+        typeof rule.options === 'string'
+          ? this.bullConfig[rule.options]
+          : rule.opoptions;
       // new queue
-      const queue = new Bull(
-        rule.name,
-        rule.options ?? this.bullConfig[rule.name]
-      );
+      const queue = new Bull(rule.name, queueOptions);
       // init
       const ctx = this.app.createAnonymousContext();
       const service: IQueue = await ctx.requestContext.getAsync(module);
       queue.process(async job => {
         await service.excute.call(service, job.data);
       });
-      for (const e of event) {
-        queue.on(e, (...args) => {
-          service.onEvent.call(this, e, ...args);
-        });
+      // resgiter custom event
+      if (rule.on && Array.isArray(rule.on) && rule.on.length > 0) {
+        for (const e of rule.on) {
+          queue.on(e, (...args) => {
+            service.onEvent.call(this, e, ...args);
+          });
+        }
       }
       queueMap[rule.name] = queue;
       this.queueList.push(queue);

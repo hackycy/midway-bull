@@ -36,7 +36,7 @@ export class ContainerLifeCycle implements ILifeCycle {}
 
 ```typescript
 export const bull = {
-  TaskName: {
+  SysTask: {
     redis: {
       port: 6379,
       host: '127.0.0.1',
@@ -57,7 +57,11 @@ import { IMidwayWebApplication } from '@midwayjs/web';
 import { IQueue, Queue } from 'midway-bull';
 import { App, Provide } from '@midwayjs/decorator';
 
-@Queue('SysTask')
+/**
+ * 第一个参数对应配置文件中的key，支持string或者直接为QueueOptions配置对象
+ * 第二参数为需要监听队列触发的event事件，该项不注册则不会回调onEvent
+ */
+@Queue('SysTask', ['completed'])
 @Provide()
 export class SysTaskQueue implements IQueue {
   @App()
@@ -78,6 +82,7 @@ export class SysTaskQueue implements IQueue {
 ``` typescript
 import { App, Inject, Provide } from '@midwayjs/decorator';
 import { BullService } from 'midway-bull';
+import { SysTaskQueue } from './sys-task'
 
 @Provide()
 export class AdminSysTaskService extends BaseService {
@@ -89,11 +94,11 @@ export class AdminSysTaskService extends BaseService {
 
   async addTask() {
     // 3秒后触发分布式任务调度。
-    await this.bullService.excute('SysTask', { name: '' }, { delay: 3000 })
+    await this.bullService.excute(SysTaskQueue, { name: '' }, { delay: 3000 })
   }
 
   async getQueue() {
-    return this.bullService.getQueue('SysTask')
+    return this.bullService.getQueue(SysTaskQueue)
   }
 }
 ```

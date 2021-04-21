@@ -6,16 +6,12 @@ export class BullService {
   @Inject('queueMap')
   queueMap;
 
-  async excute<T>(
-    queueName: string,
-    data: T,
-    options: JobOptions
-  ): Promise<Job<T>> {
-    const queue = this.queueMap[queueName] as Queue;
+  async excute<T>(iqueue: any, data: T, options: JobOptions): Promise<Job<T>> {
+    const queue = this.queueMap[iqueue.name] as Queue;
     return await queue.add(data, options);
   }
 
-  getQueue(queueName: string): Queue {
-    return this.queueMap[queueName] as Queue;
+  getQueue(iqueue: any): Queue {
+    return this.queueMap[iqueue.name] as Queue;
   }
 }
