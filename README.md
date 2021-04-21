@@ -71,7 +71,7 @@ export class SysTaskQueue implements IQueue {
     // exec something
   }
 
-  onEvent(): void {
+  onEvent(e: string, ...args: any[]): void {
     // on event
   }
 }
