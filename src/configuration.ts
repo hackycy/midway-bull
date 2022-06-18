@@ -10,6 +10,7 @@ import * as Bull from 'bull';
 import { Queue } from 'bull';
 import { MODULE_TASK_QUEUE_KEY, MODULE_TASK_QUEUE_OPTIONS } from './const';
 import { IQueue } from './type';
+import * as assert from 'assert';
 
 @Configuration({
   namespace: 'bull',
@@ -38,10 +39,14 @@ export class AutoConfiguration {
     const queueMap = {};
     for (const module of modules) {
       const rule = getClassMetadata(MODULE_TASK_QUEUE_OPTIONS, module);
-      const queueOptions =
-        typeof rule.options === 'string'
-          ? this.bullConfig[rule.options]
-          : rule.options;
+      let queueOptions;
+      if (typeof rule.options === 'string') {
+        assert(this.bullConfig, 'bullConfig parameter is required');
+        this.bullConfig[rule.options];
+      } else {
+        rule.options;
+      }
+
       // new queue
       const queue = new Bull(rule.name, queueOptions);
       // init
