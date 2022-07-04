@@ -1,4 +1,6 @@
-# midway-bull
+# midway-bull (Deprecated)
+
+请使用官方包代替：[@midwayjs/task@3](https://midwayjs.org/docs/extensions/task)
 
 [![NPM version][npm-image]][npm-url]
 [![npm download][download-image]][download-url]
